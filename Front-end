@@ -1,0 +1,120 @@
+# Agenda-de-Contatos
+package View;
+
+import Controller.ContatosController;
+import Model.Contatos;
+
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import java.awt.*;
+import java.util.List;
+
+public class ContatosViewGUI extends JFrame {
+
+    private ContatosController controller;
+
+    // Componentes da interface
+    private JTextField txtNome, txtTelefone, txtEmail;
+    private JButton btnAdicionar, btnEditar, btnExcluir, btnAtualizar;
+    private JTable tabela;
+    private DefaultTableModel modeloTabela;
+
+    public ContatosViewGUI() {
+        controller = new ContatosController();
+        inicializarComponentes();
+        carregarContatos();
+    }
+
+    private void inicializarComponentes() {
+        // Configurações da janela
+        setTitle("Agenda de Contatos");
+        setSize(900, 600);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLocationRelativeTo(null);
+        setLayout(new BorderLayout(10, 10));
+
+        // Painel superior (Formulário)
+        JPanel painelFormulario = new JPanel();
+        painelFormulario.setLayout(new GridLayout(4, 2, 10, 10));
+        painelFormulario.setBorder(BorderFactory.createTitledBorder("Agenda de Contatos"));
+
+        // Campos de entrada
+        painelFormulario.add(new JLabel("Nome:"));
+        txtNome = new JTextField();
+        painelFormulario.add(txtNome);
+
+        painelFormulario.add(new JLabel("Telefone:"));
+        txtTelefone = new JTextField();
+        painelFormulario.add(txtTelefone);
+
+        painelFormulario.add(new JLabel("Email:"));
+        txtEmail = new JTextField();
+        painelFormulario.add(txtEmail);
+
+        // Painel de botões
+        JPanel painelBotoes = new JPanel(new FlowLayout());
+
+        btnAdicionar = new JButton("Adicionar");
+        btnAdicionar.setBackground(new Color(76, 175, 80));
+        btnAdicionar.setForeground(Color.WHITE);
+
+        btnEditar = new JButton("Editar");
+        btnEditar.setBackground(new Color(33, 150, 243));
+        btnEditar.setForeground(Color.WHITE);
+
+        btnExcluir = new JButton("Excluir");
+        btnExcluir.setBackground(new Color(244, 67, 54));
+        btnExcluir.setForeground(Color.WHITE);
+
+        btnAtualizar = new JButton("Atualizar Lista");
+        btnAtualizar.addActionListener(e -> carregarContatos());
+
+        painelBotoes.add(btnAdicionar);
+        painelBotoes.add(btnEditar);
+        painelBotoes.add(btnExcluir);
+        painelBotoes.add(btnAtualizar);
+
+        painelFormulario.add(painelBotoes);
+
+        // Tabela
+        String[] colunas = {"ID", "Nome", "Telefone", "Email"};
+        modeloTabela = new DefaultTableModel(colunas, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
+
+        tabela = new JTable(modeloTabela);
+        tabela.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+        JScrollPane scrollPane = new JScrollPane(tabela);
+
+        // Adicionar componentes à janela
+        add(painelFormulario, BorderLayout.NORTH);
+        add(scrollPane, BorderLayout.CENTER);
+    }
+
+    private void carregarContatos() {
+        modeloTabela.setRowCount(0); // Limpa a tabela
+
+        List<Contatos> contatos = controller.listarContatos();
+
+        for (Contatos c : contatos) {
+            Object[] linha = {
+                c.getId(),
+                c.getNome(),
+                c.getTelefone(),
+                c.getEmail()
+            };
+            modeloTabela.addRow(linha);
+        }
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            ContatosViewGUI frame = new ContatosViewGUI();
+            frame.setVisible(true);
+        });
+    }
+}
